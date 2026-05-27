@@ -1,0 +1,18 @@
+kindle:
+  host: "192.168.1.100"  # Kindle IP 地址
+  port: 22
+  user: "root"
+  key_path: "~/.ssh/kindle_key"  # SSH 密钥路径
+  fbink_path: "/mnt/us/koreader/fbink"  # FBInk 路径
+
+refresh_interval: 600  # 刷新间隔（秒）
+
+weather:
+  city: "Beijing"  # 城市名（英文）
+
+todo:
+  doc_url: ""  # 飞书文档 URL，留空则用 task API
+
+display:
+  waveform: "GC16"  # 墨水屏刷新模式
+  avatar_path: ""  # 头像图片路径，留空则不显示
