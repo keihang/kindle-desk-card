@@ -71,10 +71,10 @@ pip install -r requirements.txt
 
 ```yaml
 kindle:
-  host: "192.168.1.100"  # Kindle IP 地址
+  host: "192.168.1.35"  # 以 Kindle ;711 页面显示的当前 IP 为准
   port: 22
   user: "root"
-  key_path: "~/.ssh/kindle_key"  # SSH 密钥路径
+  key_path: "~/.ssh/kindle_usb_rsa"  # SSH 密钥路径，USBNetwork 实测优先用 RSA
   fbink_path: "/mnt/us/koreader/fbink"  # FBInk 路径
 
 refresh_interval: 600  # 刷新间隔（秒）
@@ -90,7 +90,29 @@ display:
 ### 5. 测试连接
 
 ```bash
-ssh -i ~/.ssh/kindle_key root@192.168.1.100 "echo 'Connected!'"
+ssh -i ~/.ssh/kindle_usb_rsa root@192.168.1.35 "echo 'Connected!'"
+```
+
+### 6. Kindle 侧正确状态
+
+实测要满足这几个条件，Mac 侧才连得上：
+
+1. Kindle 已连上当前 Wi-Fi
+2. 搜索 `;711` 能看到当前 IP
+3. `KUAL -> USBNetwork -> USBNetwork Status` 显示 `SSHD is up`
+4. 如果 Kindle 通过 USB 挂载到电脑，先弹出磁盘再切回 USBNetwork
+
+如果需要直接修 USBNetwork 配置，挂载后检查：
+
+- `/Volumes/Kindle/usbnet/etc/config`
+- `/Volumes/Kindle/usbnet/etc/authorized_keys`
+
+关键配置应为：
+
+```sh
+USE_WIFI="true"
+USE_WIFI_SSHD_ONLY="true"
+USE_OPENSSH="true"
 ```
 
 ## 使用
@@ -100,7 +122,7 @@ ssh -i ~/.ssh/kindle_key root@192.168.1.100 "echo 'Connected!'"
 渲染 widget 并保存为 PNG 到桌面，不推送到 Kindle：
 
 ```bash
-.venv/bin/python test_render.py
+./.preview-venv/bin/python test_render.py
 ```
 
 ### 单次推送
@@ -108,7 +130,7 @@ ssh -i ~/.ssh/kindle_key root@192.168.1.100 "echo 'Connected!'"
 渲染并推送到 Kindle：
 
 ```bash
-.venv/bin/python -c "
+./.preview-venv/bin/python -c "
 from kindle_card.config import load
 from kindle_card.daemon import collect_data
 from kindle_card.render.canvas import render
@@ -127,7 +149,7 @@ print('Done')
 定时循环推送（默认每 600 秒）：
 
 ```bash
-.venv/bin/python kindle_card/daemon.py
+./.preview-venv/bin/python -m kindle_card.daemon
 ```
 
 按 `Ctrl+C` 停止。
@@ -242,14 +264,23 @@ sources = [
 
 检查：
 1. Kindle 是否已连接 Wi-Fi
-2. IP 地址是否正确
-3. SSH 密钥路径是否正确
-4. Kindle 端 SSH 服务是否启动
+2. `;711` 页面里的 IP 是否和 `config.yaml` 一致
+3. `USBNetwork Status` 是否真的显示 `SSHD is up`
+4. SSH 密钥路径是否正确，优先试 RSA 私钥
+5. Kindle 是否还处在 `usbms` 挂载模式
 
 ```bash
 # 测试连接
-ssh -i ~/.ssh/kindle_key root@192.168.1.100 "echo ok"
+ssh -i ~/.ssh/kindle_usb_rsa root@192.168.1.35 "echo ok"
 ```
+
+实测判断方法：
+
+- `Connection refused`：SSHD 没起来，先回 Kindle 看 `USBNetwork Status`
+- `Permission denied`：网络已通，重点检查 `authorized_keys` 和私钥类型
+- Kindle 挂载时可直接修：
+  - `/Volumes/Kindle/usbnet/etc/config`
+  - `/Volumes/Kindle/usbnet/etc/authorized_keys`
 
 ### Q: 屏幕没有刷新
 
@@ -257,7 +288,7 @@ ssh -i ~/.ssh/kindle_key root@192.168.1.100 "echo ok"
 1. FBInk 路径是否正确（KOReader 自带）
 2. 尝试手动刷新：
    ```bash
-   ssh -i ~/.ssh/kindle_key root@192.168.1.100 "/mnt/us/koreader/fbink -s -W GC16 -f"
+   ssh -i ~/.ssh/kindle_usb_rsa root@192.168.1.35 "/mnt/us/koreader/fbink -s -W GC16 -f"
    ```
 
 ### Q: 文字模糊或有残影
@@ -268,7 +299,7 @@ ssh -i ~/.ssh/kindle_key root@192.168.1.100 "echo ok"
 ### Q: 如何恢复 Kindle 正常界面
 
 ```bash
-.venv/bin/python kindle_card/restore.py
+./.preview-venv/bin/python kindle_card/restore.py
 ```
 
 这会重新启用触屏并重启 Kindle 框架。

@@ -60,7 +60,7 @@ def paint_datetime(draw: ImageDraw.Draw, rect: tuple, data: dict):
     draw.text((x, y + 115), date_str, fill=GRAY, font=get_font(36))
     draw.text((x, y + 165), weekday, fill=GRAY, font=get_font(36))
     draw.text((x, y + 225), "阿恒", fill=BLACK, font=get_font(72, bold=True))
-    draw.text((x, y + 310), "公众号：阿恒识滴AI", fill=BLACK, font=get_font(28, bold=True))
+    draw.text((x, y + 310), "小红书：阿恒聊AI", fill=BLACK, font=get_font(28, bold=True))
     draw.text((x, y + 345), "专注分享AI前沿资讯", fill=BLACK, font=get_font(28, bold=True))
     draw.text((x, y + 375), "AI知识干货分享", fill=BLACK, font=get_font(28, bold=True))
 

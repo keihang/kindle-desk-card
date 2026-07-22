@@ -1,8 +1,8 @@
 kindle:
-  host: "192.168.1.100"  # Kindle IP 地址
+  host: "192.168.1.35"  # 以 Kindle ;711 页面显示的当前 IP 为准
   port: 22
   user: "root"
-  key_path: "~/.ssh/kindle_key"  # SSH 密钥路径
+  key_path: "~/.ssh/kindle_usb_rsa"  # SSH 密钥路径，USBNetwork 实测优先用 RSA
   fbink_path: "/mnt/us/koreader/fbink"  # FBInk 路径
 
 refresh_interval: 600  # 刷新间隔（秒）
